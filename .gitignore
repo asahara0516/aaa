@@ -1,0 +1,7 @@
+# 参照音声・生成音声はリポジトリに含めない
+ref/
+outputs/
+*.wav
+*.m4a
+*.mp3
+.DS_Store
