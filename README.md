@@ -42,11 +42,22 @@ git clone <このリポジトリ> && cd aaa
 | 話し方 | 本番の用途に寄せる（ナレーション用途ならナレーション調で） |
 | 書き起こし | **不要**。参照音声から話者性が自動抽出される |
 
-QuickTime Player か Audacity で録音し、次を実行します。
+**録音する**
 
 ```bash
 brew install ffmpeg          # 初回のみ
-./scripts/prepare_ref_audio.sh 録音1.m4a 録音2.wav
+./scripts/record.sh          # 40秒の一発録り → rec.wav
+```
+
+`./scripts/record.sh 60 voice.wav` で秒数と出力先を変更、`--list` でマイク一覧、
+`REC_DEVICE=1` で別のマイクを指定できます。初回はターミナルにマイクへのアクセス許可が必要です。
+
+QuickTime Player やボイスメモで録った .m4a をそのまま渡しても構いません（変換は不要）。
+
+**参照音声に整える**
+
+```bash
+./scripts/prepare_ref_audio.sh rec.wav
 ```
 
 モノラル16bit WAVへの変換、前後の無音トリム、約8秒ごとの分割、
