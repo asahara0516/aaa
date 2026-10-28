@@ -54,11 +54,19 @@ header p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
 .house { position: absolute; right: 9%; bottom: 14%; width: 23%; }
 .house .win { transition: fill .6s ease; }
 
-.copy { position: absolute; z-index: 2; left: 6%; top: 12%; right: 38%; display: grid; gap: 1.2cqw; color: var(--ink); }
+.copy { position: absolute; z-index: 2; left: 6%; top: 12%; right: 50%; display: grid; gap: 1.2cqw; color: var(--ink); }
 .clock { font-family: var(--f-mono); font-size: 2.6cqw; letter-spacing: .08em; color: var(--ink-soft); min-height: 1.2em; }
-.head { font-family: var(--f-display); font-weight: 900; font-size: 6cqw; line-height: 1.25; margin: 0; text-wrap: balance; }
+.head { font-family: var(--f-display); font-weight: 900; font-size: 4.8cqw; line-height: 1.25; margin: 0; text-wrap: balance; }
 .head span { display: inline-block; animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
 .sub { font-family: var(--f-display); font-weight: 700; font-size: 2.3cqw; color: var(--ink-soft); animation: fade .8s ease both; animation-delay: .5s; }
+/* picture-book page: the scene illustration, swapped per scene */
+.pic { position: absolute; z-index: 1; right: 4.5%; top: 11%; width: 44%; aspect-ratio: 1376 / 768; transform: rotate(1.2deg); }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 1.4cqw; border: 0.6cqw solid #fbf7ee; box-sizing: border-box; background: #fbf7ee; box-shadow: 0 1.2cqw 3cqw rgba(20, 30, 40, .28); }
+.pic img.in { animation: picIn .9s cubic-bezier(.2,.8,.2,1) both, drift var(--d, 6s) linear both; }
+.pic img.out { animation: picOut .6s ease both; }
+@keyframes picIn { from { opacity: 0; transform: translateY(1.5cqw) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes picOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes drift { from { object-position: 50% 50%; } to { object-position: 50% 46%; } }
 @keyframes rise { from { opacity: 0; transform: translateY(.45em) rotate(-4deg); } to { opacity: 1; transform: none; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
@@ -125,6 +133,7 @@ pre { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(
       <rect x="152" y="98" width="34" height="28" rx="3" class="win" id="w3"/>
       <rect x="106" y="136" width="28" height="34" rx="2" fill="#7a5a43"/>
     </svg>
+    <div class="pic" id="pic" aria-hidden="true"></div>
     <div class="ruler" id="ruler"><b id="tick"></b></div>
     <div class="copy">
       <div class="clock" id="clock"></div>
@@ -168,7 +177,7 @@ const SCENES = [
   { h: 18,  to: 19.5, time: "夕方",        head: "夕ごはん。",           sub: "",                           cap: "帰ったら、夕ごはん。", dur: 4500 },
   { h: 19.5, to: 21,  time: "夜",          head: "順番に、お風呂。",     sub: "",                           cap: "順番に、お風呂。", dur: 4500 },
   { h: 21,  to: 23,   time: "夜",          head: "おやすみなさい。",     sub: "17時から翌9時まで、スタッフ常駐", cap: "自由時間を過ごして、おやすみなさい。夜のあいだも、スタッフがいます。", dur: 7100 },
-  { h: 23,  to: 24,   time: "",            head: "365日、\nスタッフ常駐。", sub: "知的・精神障がいのある18歳以上の方へ", cap: "三百六十五日、スタッフが常駐。オハナホーム。", dur: 8000 },
+  { h: 23,  to: 24,   time: "",            head: "365日、\nスタッフ常駐。", sub: "知的・精神障がいのある18歳以上の方へ", cap: "365日、スタッフが常駐。オハナホーム。", dur: 8000 },
 ];
 
 /* sky colors by hour: [hour, top, bottom, ground] */
@@ -254,6 +263,26 @@ function paint(h) {
   $("tick").style.left = (Math.min(h, 24) / 24 * 100) + "%";
 }
 
+const IMG_DIR = "img/";
+SCENES.forEach((s, i) => { s.img = IMG_DIR + "s" + (i === SCENES.length - 1 ? 0 : i) + ".webp"; });
+const IMAGES_READY = Promise.all(SCENES.map((s) => new Promise((ok) => {
+  const im = new Image(); im.onload = im.onerror = () => ok(); im.src = s.img;
+})));
+
+function showPic(src, dur) {
+  const box = $("pic");
+  const prev = box.querySelector("img.in");
+  if (prev && prev.getAttribute("src") === src) return;
+  [...box.querySelectorAll("img.out")].forEach((el) => el.remove());
+  if (prev) { prev.className = "out"; }
+  const im = document.createElement("img");
+  im.alt = "";
+  im.src = src;
+  im.className = "in";
+  im.style.setProperty("--d", dur + "ms");
+  box.appendChild(im);
+}
+
 function renderScene(i) {
   const s = SCENES[i];
   $("clock").textContent = s.time;
@@ -270,6 +299,7 @@ function renderScene(i) {
   sub.textContent = s.sub;
   sub.style.animation = "none"; void sub.offsetWidth; sub.style.animation = "";
   $("caption").textContent = s.cap;
+  showPic(s.img, s.dur);
   [...$("dots").children].forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
 }
 
@@ -333,6 +363,7 @@ $("copy").addEventListener("click", () => {
 if (location.hash === "#render") {
   document.documentElement.classList.add("render");
   playing = false;
+  window.__ready = () => IMAGES_READY;
   window.__setDurations = (ds) => {
     ds.forEach((d, i) => { SCENES[i].dur = d; });
     starts.length = 0; total = 0;
