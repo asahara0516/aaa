@@ -1,0 +1,325 @@
+<title>陽光台の1日</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one 16:9 stage where the sky follows the clock, with the narration script underneath */
+:root {
+  --bg: #f3f6f8;
+  --fg: #1d2a36;
+  --muted: #5b6b78;
+  --line: #d6dee5;
+  --panel: #ffffff;
+  --accent: #e0803f;
+  --f-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --f-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161d; --fg: #e6edf2; --muted: #93a3b0; --line: #26313b; --panel: #17202a; --accent: #f0995a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10161d; --fg: #e6edf2; --muted: #93a3b0; --line: #26313b; --panel: #17202a; --accent: #f0995a;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); line-height: 1.7; }
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+  display: grid; gap: 20px;
+}
+header h1 { font-family: var(--f-display); font-weight: 900; font-size: 1.6rem; margin: 0; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+/* ---------- stage ---------- */
+.stage {
+  position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9;
+  border-radius: 14px; overflow: hidden; container-type: inline-size;
+  background: linear-gradient(var(--sky-top, #7fb0dc), var(--sky-bot, #f6d3a8));
+  --ink: #17222c; --ink-soft: rgba(23,34,44,.72);
+  isolation: isolate;
+}
+.stars { position: absolute; inset: 0; opacity: var(--night, 0); transition: opacity .3s linear; }
+.stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; }
+.orb { position: absolute; width: 7cqw; height: 7cqw; margin: -3.5cqw 0 0 -3.5cqw; border-radius: 50%; }
+.sun { background: radial-gradient(circle, #fff6d8 0 38%, #ffd27a 40% 62%, rgba(255,200,110,0) 64%); box-shadow: 0 0 6cqw 1cqw rgba(255,206,120,.55); }
+.moon { width: 4.6cqw; height: 4.6cqw; margin: -2.3cqw 0 0 -2.3cqw; background: #f2f0e6; box-shadow: inset -1.2cqw -0.6cqw 0 0 #c9c6b6, 0 0 3cqw rgba(242,240,230,.35); }
+.ground { position: absolute; left: 0; right: 0; bottom: 0; height: 21%; background: var(--ground, #6f8f62); }
+.house { position: absolute; right: 9%; bottom: 14%; width: 23%; }
+.house .win { transition: fill .6s ease; }
+
+.copy { position: absolute; z-index: 2; left: 6%; top: 12%; right: 38%; display: grid; gap: 1.2cqw; color: var(--ink); }
+.clock { font-family: var(--f-mono); font-size: 2.6cqw; letter-spacing: .08em; color: var(--ink-soft); min-height: 1.2em; }
+.head { font-family: var(--f-display); font-weight: 900; font-size: 6cqw; line-height: 1.25; margin: 0; text-wrap: balance; }
+.head span { display: inline-block; animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
+.sub { font-family: var(--f-display); font-weight: 700; font-size: 2.3cqw; color: var(--ink-soft); animation: fade .8s ease both; animation-delay: .5s; }
+@keyframes rise { from { opacity: 0; transform: translateY(.45em) rotate(-4deg); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.caption {
+  position: absolute; left: 50%; bottom: 4.2%; transform: translateX(-50%);
+  width: 86%; text-align: center; font-size: 1.85cqw; font-weight: 500; color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.55);
+}
+.ruler { position: absolute; left: 6%; right: 6%; top: 4.5%; height: 1px; background: rgba(255,255,255,.45); }
+.ruler b { position: absolute; top: -.55cqw; width: 1.1cqw; height: 1.1cqw; margin-left: -.55cqw; border-radius: 50%; background: #fff; box-shadow: 0 0 1cqw rgba(255,255,255,.8); }
+.ruler em { position: absolute; top: .6cqw; transform: translateX(-50%); font: 500 1.2cqw var(--f-mono); font-style: normal; color: rgba(255,255,255,.8); }
+
+/* ---------- controls ---------- */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button {
+  font: 500 .9rem var(--f-body); color: var(--fg); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dots { display: flex; flex-wrap: wrap; gap: 6px; }
+.dots button { padding: 4px 10px; font-size: .8rem; color: var(--muted); }
+.dots button[aria-current="true"] { color: var(--fg); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+
+/* ---------- script ---------- */
+.script { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.script h2 { font-family: var(--f-display); font-size: 1.1rem; margin: 0; }
+.script p.note { margin: 0; color: var(--muted); font-size: .85rem; }
+.script ol { margin: 0; padding-left: 1.6em; display: grid; gap: 6px; }
+.script li { max-width: 65ch; }
+.script li small { color: var(--muted); font-family: var(--f-mono); margin-right: .6em; }
+pre { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: .78rem/1.6 var(--f-mono); }
+.sources { color: var(--muted); font-size: .82rem; }
+.sources a { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .head span, .sub { animation: none; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>オハナホーム陽光台の1日</h1>
+    <p>公開情報から組んだ約1分のモーション。字幕はそのままナレーション台本になります。</p>
+  </header>
+
+  <div class="stage" id="stage" role="img" aria-label="グループホームの1日を朝から夜まで表すアニメーション">
+    <div class="stars" id="stars"></div>
+    <div class="orb sun" id="sun"></div>
+    <div class="orb moon" id="moon"></div>
+    <div class="ground"></div>
+    <svg class="house" viewBox="0 0 240 170" aria-hidden="true">
+      <path d="M10 78 L120 8 L230 78 Z" fill="#8a4b3a"/>
+      <rect x="28" y="74" width="184" height="96" fill="#efe6d6"/>
+      <rect x="54" y="98" width="34" height="28" rx="3" class="win" id="w1"/>
+      <rect x="103" y="98" width="34" height="28" rx="3" class="win" id="w2"/>
+      <rect x="152" y="98" width="34" height="28" rx="3" class="win" id="w3"/>
+      <rect x="106" y="136" width="28" height="34" rx="2" fill="#7a5a43"/>
+    </svg>
+    <div class="ruler" id="ruler"><b id="tick"></b></div>
+    <div class="copy">
+      <div class="clock" id="clock"></div>
+      <h2 class="head" id="head"></h2>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="caption" id="caption"></div>
+  </div>
+
+  <div class="controls">
+    <button id="play" type="button">一時停止</button>
+    <button id="restart" type="button">最初から</button>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <section class="script">
+    <h2>ナレーション台本</h2>
+    <p class="note">場面ごとに1ファイルずつ書き出す前提です。下のコマンドは、リポジトリの <code>motion/narrate.sh</code> と同じ内容を1行ずつ実行します。</p>
+    <ol id="lines"></ol>
+    <pre id="cmd"></pre>
+    <div><button id="copy" type="button">コマンドをコピー</button> <span id="copied" class="note" aria-live="polite"></span></div>
+  </section>
+
+  <p class="sources">
+    出典：<a href="https://www.ohana-home.net/service/" target="_blank" rel="noopener">公式サイト サービス内容・料金</a>（06:30 交流室開放、07:30 朝食、08:30 出発、12:00 休日の昼食）、
+    <a href="https://ohanaykd.wixsite.com/website" target="_blank" rel="noopener">紹介ページ</a>（帰宅後の夕食・入浴・自由時間・就寝、土日祝の日中と17時〜翌9時の常駐）、
+    <a href="https://www.ohana-home.net/" target="_blank" rel="noopener">公式トップ</a>（対象者、365日スタッフ常駐）。
+    夕食・入浴・就寝の時刻は公開情報で確認できなかったため、表示していません。
+  </p>
+</div>
+
+<script>
+const SCENES = [
+  { h: 5.0, to: 6.5, time: "",             head: "陽光台の、ある1日。", sub: "オハナホーム陽光台",        cap: "相模原市、陽光台。オハナホーム陽光台の、ある一日をご紹介します。", dur: 5500 },
+  { h: 6.5, to: 7.5, time: "06:30",        head: "おはよう、から。",     sub: "交流室があきます",          cap: "朝六時半。交流室があきます。おはよう、から一日が始まります。", dur: 6000 },
+  { h: 7.5, to: 8.5, time: "07:30",        head: "みんなで朝ごはん。",   sub: "",                           cap: "七時半。みんなで朝ごはん。", dur: 5000 },
+  { h: 8.5, to: 11.5, time: "08:30",       head: "いってらっしゃい。",   sub: "平日は、仕事や作業所へ",     cap: "八時半。平日は、それぞれの仕事や作業所へ。いってらっしゃい。", dur: 6000 },
+  { h: 12,  to: 16.5, time: "12:00 休日",  head: "休みの日は、ゆっくり。", sub: "土日祝の日中もスタッフがいます", cap: "休みの日は、ホームでゆっくり。お昼ごはんは十二時。土日祝日の日中も、スタッフがいます。", dur: 7000 },
+  { h: 17,  to: 18,   time: "夕方",        head: "おかえりなさい。",     sub: "日中の活動から帰ってきます", cap: "夕方。日中の活動から帰ってきます。おかえりなさい。", dur: 5500 },
+  { h: 18,  to: 19.5, time: "夕方",        head: "夕ごはん。",           sub: "",                           cap: "帰ったら、夕ごはん。", dur: 4500 },
+  { h: 19.5, to: 21,  time: "夜",          head: "順番に、お風呂。",     sub: "",                           cap: "順番に、お風呂。", dur: 4500 },
+  { h: 21,  to: 23,   time: "夜",          head: "おやすみなさい。",     sub: "17時から翌9時まで、スタッフ常駐", cap: "自由時間を過ごして、おやすみなさい。夜のあいだも、スタッフがいます。", dur: 7000 },
+  { h: 23,  to: 24,   time: "",            head: "365日、スタッフ常駐。", sub: "知的・精神障がいのある18歳以上の方へ", cap: "三百六十五日、スタッフが常駐。オハナホーム陽光台。", dur: 8000 },
+];
+
+/* sky colors by hour: [hour, top, bottom, ground] */
+const SKY = [
+  [0,   "#0b1128", "#1a2244", "#1d2a24"],
+  [5,   "#26305e", "#e7a07c", "#3d4f3a"],
+  [6.5, "#7fb0dc", "#f6d3a8", "#5f8156"],
+  [9,   "#7dbbe8", "#e3f1f8", "#6f9a60"],
+  [12,  "#5aa6e3", "#cfe8f6", "#73a062"],
+  [16,  "#78acd9", "#f3dcb4", "#6c9459"],
+  [17.5,"#d9805a", "#f6c58a", "#5a7246"],
+  [19,  "#3a3a6e", "#b46a6a", "#36442f"],
+  [21,  "#151d3e", "#2b3564", "#202b24"],
+  [24,  "#0b1128", "#1a2244", "#1d2a24"],
+];
+
+const $ = (id) => document.getElementById(id);
+const stage = $("stage");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+const mix = (a, b, t) => { const x = hex(a), y = hex(b); return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(",")})`; };
+function skyAt(h) {
+  let i = 0;
+  while (i < SKY.length - 2 && h > SKY[i + 1][0]) i++;
+  const [h0, t0, b0, g0] = SKY[i], [h1, t1, b1, g1] = SKY[i + 1];
+  const t = Math.min(1, Math.max(0, (h - h0) / (h1 - h0)));
+  return { top: mix(t0, t1, t), bot: mix(b0, b1, t), ground: mix(g0, g1, t), lum: lum(mix(t0, t1, t)) };
+}
+function lum(rgb) {
+  const [r, g, b] = rgb.match(/\d+/g).map(Number);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
+/* stars, fixed positions */
+(function () {
+  let s = 7;
+  const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const box = $("stars");
+  for (let i = 0; i < 46; i++) {
+    const el = document.createElement("i");
+    el.style.left = (rnd() * 100) + "%";
+    el.style.top = (rnd() * 58) + "%";
+    el.style.opacity = 0.35 + rnd() * 0.65;
+    box.appendChild(el);
+  }
+  const ruler = $("ruler");
+  [6, 12, 18, 24].forEach((h) => {
+    const em = document.createElement("em");
+    em.textContent = h;
+    em.style.left = (h / 24 * 100) + "%";
+    ruler.appendChild(em);
+  });
+})();
+
+function paint(h) {
+  const sky = skyAt(h);
+  stage.style.setProperty("--sky-top", sky.top);
+  stage.style.setProperty("--sky-bot", sky.bot);
+  stage.style.setProperty("--ground", sky.ground);
+  const night = h < 5.5 ? 1 : h > 19 ? Math.min(1, (h - 19) / 1.5) : 0;
+  stage.style.setProperty("--night", night);
+  const dark = sky.lum < 0.5;
+  stage.style.setProperty("--ink", dark ? "#f4f7fb" : "#17222c");
+  stage.style.setProperty("--ink-soft", dark ? "rgba(244,247,251,.78)" : "rgba(23,34,44,.72)");
+
+  /* sun 5 -> 18.5, moon 18.5 -> 29 */
+  const arc = (t) => ({ x: 8 + 84 * t, y: 74 - Math.sin(Math.PI * t) * 38 });
+  const sun = $("sun"), moon = $("moon");
+  const ts = (h - 5) / 13.5;
+  sun.style.opacity = ts > 0 && ts < 1 ? 1 : 0;
+  if (ts > 0 && ts < 1) { const p = arc(ts); sun.style.left = p.x + "%"; sun.style.top = p.y + "%"; }
+  const hm = h < 5 ? h + 24 : h;
+  const tm = (hm - 18.5) / 10.5;
+  moon.style.opacity = tm > 0 && tm < 1 ? 1 : 0;
+  if (tm > 0 && tm < 1) { const p = arc(tm); moon.style.left = p.x + "%"; moon.style.top = p.y + "%"; }
+
+  const lit = h >= 17.3 || h < 6.6;
+  const off = h >= 22.6;
+  ["w1", "w2", "w3"].forEach((id, i) => {
+    $(id).style.fill = lit && !(off && i !== 1) ? "#ffd889" : "#9cb4c6";
+  });
+  $("tick").style.left = (Math.min(h, 24) / 24 * 100) + "%";
+}
+
+function renderScene(i) {
+  const s = SCENES[i];
+  $("clock").textContent = s.time;
+  const head = $("head");
+  head.textContent = "";
+  [...s.head].forEach((ch, k) => {
+    const sp = document.createElement("span");
+    sp.textContent = ch;
+    sp.style.animationDelay = (k * 0.055) + "s";
+    head.appendChild(sp);
+  });
+  const sub = $("sub");
+  sub.textContent = s.sub;
+  sub.style.animation = "none"; void sub.offsetWidth; sub.style.animation = "";
+  $("caption").textContent = s.cap;
+  [...$("dots").children].forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+}
+
+/* timeline */
+const starts = [];
+let total = 0;
+SCENES.forEach((s) => { starts.push(total); total += s.dur; });
+let t = 0, playing = true, last = null, current = -1;
+const ease = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+
+function frame(now) {
+  if (last !== null && playing) t = Math.min(total, t + (now - last));
+  last = now;
+  let i = SCENES.length - 1;
+  while (i > 0 && t < starts[i]) i--;
+  if (i !== current) { current = i; renderScene(i); }
+  const s = SCENES[i];
+  const p = Math.min(1, (t - starts[i]) / s.dur);
+  paint(s.h + (s.to - s.h) * (reduce ? p : ease(p)));
+  if (t >= total && playing) { playing = false; $("play").textContent = "再生"; }
+  requestAnimationFrame(frame);
+}
+
+SCENES.forEach((s, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = s.time || (i === 0 ? "はじまり" : "おわり");
+  b.addEventListener("click", () => { t = starts[i]; current = -1; playing = true; $("play").textContent = "一時停止"; });
+  $("dots").appendChild(b);
+});
+$("play").addEventListener("click", () => {
+  if (t >= total) t = 0, current = -1;
+  playing = !playing;
+  $("play").textContent = playing ? "一時停止" : "再生";
+});
+$("restart").addEventListener("click", () => { t = 0; current = -1; playing = true; $("play").textContent = "一時停止"; });
+
+/* script panel */
+const lines = $("lines");
+const cmds = [];
+SCENES.forEach((s, i) => {
+  const li = document.createElement("li");
+  const sec = document.createElement("small");
+  sec.textContent = (s.dur / 1000).toFixed(1) + "秒";
+  li.append(sec, s.cap);
+  lines.appendChild(li);
+  const n = String(i + 1).padStart(2, "0");
+  cmds.push(`IRODORI_OUT=outputs/ohana/${n}.wav ./scripts/say.sh "${s.cap}" ref/*.wav`);
+});
+$("cmd").textContent = cmds.join("\n");
+$("copy").addEventListener("click", () => {
+  const done = (msg) => { $("copied").textContent = msg; };
+  navigator.clipboard.writeText(cmds.join("\n")).then(() => done("コピーしました"), () => {
+    const r = document.createRange(); r.selectNodeContents($("cmd"));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    done("選択しました。⌘C でコピーしてください");
+  });
+});
+
+renderScene(0);
+requestAnimationFrame(frame);
+</script>
