@@ -1,4 +1,4 @@
-<title>陽光台の1日</title>
+<title>オハナホームの1日</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,7 +101,7 @@ pre { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(
 
 <div class="wrap">
   <header>
-    <h1>オハナホーム陽光台の1日</h1>
+    <h1>オハナホームの1日</h1>
     <p>公開情報から組んだ約1分のモーション。字幕はそのままナレーション台本になります。</p>
   </header>
 
@@ -151,7 +151,7 @@ pre { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(
 
 <script>
 const SCENES = [
-  { h: 5.0, to: 6.5, time: "",             head: "陽光台の、ある1日。", sub: "オハナホーム陽光台",        cap: "相模原市、陽光台。オハナホーム陽光台の、ある一日をご紹介します。", dur: 5500 },
+  { h: 5.0, to: 6.5, time: "",             head: "グループホームの、\nある1日。", sub: "オハナホーム",        cap: "オハナホームの、ある一日をご紹介します。", dur: 5500 },
   { h: 6.5, to: 7.5, time: "06:30",        head: "おはよう、から。",     sub: "交流室があきます",          cap: "朝六時半。交流室があきます。おはよう、から一日が始まります。", dur: 6000 },
   { h: 7.5, to: 8.5, time: "07:30",        head: "みんなで朝ごはん。",   sub: "",                           cap: "七時半。みんなで朝ごはん。", dur: 5000 },
   { h: 8.5, to: 11.5, time: "08:30",       head: "いってらっしゃい。",   sub: "平日は、仕事や作業所へ",     cap: "八時半。平日は、それぞれの仕事や作業所へ。いってらっしゃい。", dur: 6000 },
@@ -160,7 +160,7 @@ const SCENES = [
   { h: 18,  to: 19.5, time: "夕方",        head: "夕ごはん。",           sub: "",                           cap: "帰ったら、夕ごはん。", dur: 4500 },
   { h: 19.5, to: 21,  time: "夜",          head: "順番に、お風呂。",     sub: "",                           cap: "順番に、お風呂。", dur: 4500 },
   { h: 21,  to: 23,   time: "夜",          head: "おやすみなさい。",     sub: "17時から翌9時まで、スタッフ常駐", cap: "自由時間を過ごして、おやすみなさい。夜のあいだも、スタッフがいます。", dur: 7000 },
-  { h: 23,  to: 24,   time: "",            head: "365日、スタッフ常駐。", sub: "知的・精神障がいのある18歳以上の方へ", cap: "三百六十五日、スタッフが常駐。オハナホーム陽光台。", dur: 8000 },
+  { h: 23,  to: 24,   time: "",            head: "365日、スタッフ常駐。", sub: "知的・精神障がいのある18歳以上の方へ", cap: "三百六十五日、スタッフが常駐。オハナホーム。", dur: 8000 },
 ];
 
 /* sky colors by hour: [hour, top, bottom, ground] */
@@ -252,6 +252,7 @@ function renderScene(i) {
   const head = $("head");
   head.textContent = "";
   [...s.head].forEach((ch, k) => {
+    if (ch === "\n") { head.appendChild(document.createElement("br")); return; }
     const sp = document.createElement("span");
     sp.textContent = ch;
     sp.style.animationDelay = (k * 0.055) + "s";
